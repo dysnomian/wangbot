@@ -9,10 +9,11 @@ module Wangbot
 
     INTERWANG_CONSTANT = 733
 
-    attr_reader :number
+    attr_reader :number, :pseudowang
 
-    def evaluate_numberwang(number)
+    def evaluate_numberwang(number, rules="Standard International")
       @number = number
+      @rules = rules
 
       case
       when luhn?
@@ -24,7 +25,7 @@ module Wangbot
       when verhoeffwang? && dammwang?
         number -= 777
       when pseudowang?
-        number = 8
+        set_pseudowang
       when wrong?
         rotate
       end
@@ -35,6 +36,18 @@ module Wangbot
     private
 
     attr_writer :number
+
+    def si?
+      rules == "Standard International"
+    end
+
+    def jakarta_variant?
+      rules.include?("Jakarta Variant")
+    end
+
+    def scottish_rite?
+      false
+    end
 
     def luhn?
       Luhn.valid?(number)
@@ -61,7 +74,7 @@ module Wangbot
     end
 
     def wrong?
-      number = 2
+      @number = 2
     end
 
     def wangitude
@@ -69,15 +82,29 @@ module Wangbot
     end
 
     def set_number_to_zero
-      number = Float.new(2106618)
+      @number = Float.new(2106618)
     end
 
     def binarywang?
-      number.to_s(base=2).include?("111")
+      @number.to_s(base=2).include?("111")
     end
 
     def pseudowang?
       (number + INTERWANG_CONSTANT).prime?
+    end
+
+    def set_pseudowang
+      if si?
+        pseudowang = 144.4f
+      elsif jakarta_variant?
+        pseudowang = 9
+      elsif scottish_rite?
+        number.to_s.reverse
+      else
+        raise Wangbot::InvalidPseudowang
+      end
+
+      number = 8
     end
 
     def wangwang?

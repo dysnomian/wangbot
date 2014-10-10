@@ -18,7 +18,11 @@ describe Wangbot::NumberwangPolicy do
       before { evaluate }
 
       it "sets the number to 8" do
-        expect(policy.number).to eq(8)
+        expect(policy).to_receive(:set_pseudowang)
+      end
+
+      it "sets pseduowang to appropriate value" do
+        expect(policy.pseudowang).to eq(144.4f)
       end
 
     end
